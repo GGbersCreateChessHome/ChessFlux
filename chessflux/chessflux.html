@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ChessFlux — шахматы для всех</title>
+
+  <style>
+    :root {
+      --bg: #101114;
+      --panel: #181a1f;
+      --panel-light: #22252c;
+      --yellow: #f5c542;
+      --yellow-dark: #dba817;
+      --text: #f5f5f5;
+      --muted: #a8abb3;
+      --border: rgba(255, 255, 255, 0.08);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: Inter, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    a {
+      color: inherit;
+      text-decoration: none;
+    }
+
+    button {
+      border: 0;
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .container {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    header {
+      border-bottom: 1px solid var(--border);
+      background: rgba(16, 17, 20, 0.9);
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      backdrop-filter: blur(14px);
+    }
+
+    .navbar {
+      height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 30px;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+    }
+
+    .logo-icon {
+      width: 38px;
+      height: 38px;
+      display: grid;
+      place-items: center;
+      background: var(--yellow);
+      color: #161616;
+      border-radius: 11px;
+      font-size: 23px;
+    }
+
+    nav {
+      display: flex;
+      gap: 25px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    nav a:hover {
+      color: var(--yellow);
+    }
+
+    .nav-actions {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      padding: 11px 18px;
+      border-radius: 9px;
+      transition: 0.2s;
+      font-weight: 700;
+      font-size: 14px;
+    }
+
+    .btn-outline {
+      color: var(--text);
+      border: 1px solid var(--border);
+      background: transparent;
+    }
+
+    .btn-outline:hover {
+      border-color: var(--yellow);
+      color: var(--yellow);
+    }
+
+    .btn-primary {
+      color: #171717;
+      background: var(--yellow);
+    }
+
+    .btn-primary:hover {
+      background: #ffd75c;
+      transform: translateY(-1px);
+    }
+
+    .hero {
+      padding: 90px 0 80px;
+      overflow: hidden;
+    }
+
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.05fr 0.95fr;
+      align-items: center;
+      gap: 70px;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      border: 1px solid rgba(245, 197, 66, 0.3);
+      border-radius: 30px;
+      color: var(--yellow);
+      background: rgba(245, 197, 66, 0.08);
+      font-size: 13px;
+      margin-bottom: 20px;
+    }
+
+    h1 {
+      max-width: 620px;
+      font-size: clamp(42px, 6vw, 74px);
+      line-height: 1.02;
+      letter-spacing: -3px;
+      margin-bottom: 24px;
+    }
+
+    h1 span {
+      color: var(--yellow);
+    }
+
+    .hero-text {
+      max-width: 530px;
+      color: var(--muted);
+      font-size: 18px;
+      margin-bottom: 30px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .board-wrap {
+      display: flex;
+      justify-content: center;
+      position: relative;
+    }
+
+    .board-glow {
+      position: absolute;
+      width: 330px;
+      height: 330px;
+      background: rgba(245, 197, 66, 0.2);
+      filter: blur(70px);
+      z-index: -1;
+    }
+
+    .chessboard {
+      width: min(440px, 90vw);
+      aspect-ratio: 1;
+      display: grid;
+      grid-template-columns: repeat(8, 1fr);
+      border: 10px solid #2a2d33;
+      border-radius: 13px;
+      overflow: hidden;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.45);
+    }
+
+    .square {
+      display: grid;
+      place-items: center;
+      font-size: clamp(25px, 5vw, 47px);
+      user-select: none;
+      transition: filter 0.15s;
+    }
+
+    .square.light {
+      background: #f3dc99;
+    }
+
+    .square.dark {
+      background: #b88935;
+    }
+
+    .square:hover {
+      filter: brightness(1.2);
+    }
+
+    .features {
+      padding: 35px 0 95px;
+    }
+
+    .section-heading {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .section-heading h2 {
+      font-size: 36px;
+      margin-bottom: 10px;
+    }
+
+    .section-heading p {
+      color: var(--muted);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 18px;
+    }
+
+    .feature-card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      padding: 27px;
+      border-radius: 15px;
+      transition: 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-5px);
+      border-color: rgba(245, 197, 66, 0.45);
+    }
+
+    .feature-icon {
+      width: 45px;
+      height: 45px;
+      display: grid;
+      place-items: center;
+      background: rgba(245, 197, 66, 0.12);
+      color: var(--yellow);
+      border-radius: 12px;
+      font-size: 23px;
+      margin-bottom: 18px;
+    }
+
+    .feature-card h3 {
+      margin-bottom: 9px;
+      font-size: 19px;
+    }
+
+    .feature-card p {
+      color: var(--muted);
+      font-size: 14px;
+    }
+
+    .cta {
+      margin: 0 auto 90px;
+      padding: 45px;
+      border-radius: 19px;
+      background:
+        linear-gradient(120deg, rgba(245, 197, 66, 0.19), transparent),
+        var(--panel);
+      border: 1px solid rgba(245, 197, 66, 0.23);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 25px;
+    }
+
+    .cta h2 {
+      font-size: 31px;
+      margin-bottom: 8px;
+    }
+
+    .cta p {
+      color: var(--muted);
+    }
+
+    footer {
+      border-top: 1px solid var(--border);
+      padding: 25px 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .footer-content {
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+    }
+
+    @media (max-width: 850px) {
+      nav {
+        display: none;
+      }
+
+      .hero {
+        padding-top: 55px;
+      }
+
+      .hero-grid {
+        grid-template-columns: 1fr;
+        gap: 50px;
+      }
+
+      .hero-content {
+        text-align: center;
+      }
+
+      .hero-text {
+        margin-left: auto;
+        margin-right: auto;
+      }
+
+      .hero-buttons {
+        justify-content: center;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta {
+        flex-direction: column;
+        align-items: flex-start;
+        padding: 30px;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .container {
+        width: min(100% - 26px, 1180px);
+      }
+
+      .nav-actions .btn-outline {
+        display: none;
+      }
+
+      h1 {
+        letter-spacing: -1.5px;
+      }
+
+      .footer-content {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <div class="container navbar">
+      <a href="#" class="logo">
+        <span class="logo-icon">♞</span>
+        ChessFlux
+      </a>
+
+      <nav>
+        <a href="#features">Возможности</a>
+        <a href="#training">Обучение</a>
+        <a href="#community">Сообщество</a>
+      </nav>
+
+      <div class="nav-actions">
+        <button class="btn btn-outline" onclick="showMessage('Форма входа скоро будет доступна')">
+          Войти
+        </button>
+        <button class="btn btn-primary" onclick="showMessage('Регистрация успешно начата')">
+          Начать
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container hero-grid">
+        <div class="hero-content">
+          <div class="badge">♟ Платформа для шахматистов</div>
+
+          <h1>
+            Играй умнее.<br>
+            Становись <span>сильнее.</span>
+          </h1>
+
+          <p class="hero-text">
+            ChessFlux помогает тренироваться, анализировать партии
+            и находить соперников любого уровня в одном месте.
+          </p>
+
+          <div class="hero-buttons">
+            <button class="btn btn-primary" onclick="scrollToFeatures()">
+              Начать играть →
+            </button>
+            <button class="btn btn-outline" onclick="showMessage('Раздел обучения скоро будет доступен')">
+              Узнать больше
+            </button>
+          </div>
+        </div>
+
+        <div class="board-wrap">
+          <div class="board-glow"></div>
+          <div class="chessboard" id="chessboard"></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <div class="container">
+        <div class="section-heading">
+          <h2>Всё для твоей игры</h2>
+          <p>Развивай навыки и получай удовольствие от шахмат</p>
+        </div>
+
+        <div class="feature-grid">
+          <article class="feature-card" id="training">
+            <div class="feature-icon">⚡</div>
+            <h3>Быстрые партии</h3>
+            <p>
+              Находи соперника онлайн и играй партии в удобном темпе:
+              блиц, рапид или классика.
+            </p>
+          </article>
+
+          <article class="feature-card">
+            <div class="feature-icon">♜</div>
+            <h3>Анализ партий</h3>
+            <p>
+              Изучай свои ошибки, находи сильные ходы и улучшай
+              понимание шахматных позиций.
+            </p>
+          </article>
+
+          <article class="feature-card" id="community">
+            <div class="feature-icon">♛</div>
+            <h3>Шахматное сообщество</h3>
+            <p>
+              Общайся с игроками, участвуй в турнирах и следи
+              за своим прогрессом.
+            </p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="container">
+      <div class="cta">
+        <div>
+          <h2>Готов сделать первый ход?</h2>
+          <p>Присоединяйся к ChessFlux и развивай свою игру каждый день.</p>
+        </div>
+
+        <button class="btn btn-primary" onclick="showMessage('Добро пожаловать в ChessFlux!')">
+          Создать аккаунт
+        </button>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container footer-content">
+      <span>© 2026 ChessFlux</span>
+      <span>Шахматы. Обучение. Развитие.</span>
+    </div>
+  </footer>
+
+  <script>
+    const board = document.getElementById("chessboard");
+
+    const pieces = [
+      ["♜", "♞", "♝", "♛", "♚", "♝", "♞", "♜"],
+      ["♟", "♟", "♟", "♟", "♟", "♟", "♟", "♟"],
+      ["", "", "", "", "", "", "", ""],
+      ["", "", "", "", "", "", "", ""],
+      ["", "", "", "", "", "", "", ""],
+      ["", "", "", "", "", "", "", ""],
+      ["♙", "♙", "♙", "♙", "♙", "♙", "♙", "♙"],
+      ["♖", "♘", "♗", "♕", "♔", "♗", "♘", "♖"]
+    ];
+
+    for (let row = 0; row < 8; row++) {
+      for (let col = 0; col < 8; col++) {
+        const square = document.createElement("div");
+        square.className = `square ${(row + col) % 2 === 0 ? "light" : "dark"}`;
+        square.textContent = pieces[row][col];
+
+        square.addEventListener("click", () => {
+          square.style.filter = "brightness(1.35)";
+          setTimeout(() => {
+            square.style.filter = "";
+          }, 250);
+        });
+
+        board.appendChild(square);
+      }
+    }
+
+    function showMessage(message) {
+      alert(message);
+    }
+
+    function scrollToFeatures() {
+      document.getElementById("features").scrollIntoView({
+        behavior: "smooth"
+      });
+    }
+  </script>
+
+</body>
+</html>
